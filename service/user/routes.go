@@ -2,7 +2,6 @@ package user
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/Siddhant6674/ECOM/service/auth"
@@ -38,17 +37,20 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	if err := utils.ParseJSON(r, &payload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 	}
-	log.Println(payload)
-	//validate the payload
 
+	//validate the payload
 	if err := utils.Validate.Struct(payload); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 		return
 	}
+
 	//check if user exist
+	//we want make err == nil instead of err!= nil
+	//this check in database if user exist db provide no error it return nil if user not
+	//exist db give error which not nil it procced to new creation
 	_, err := h.store.GetUserByEmail(payload.Email)
-	if err != nil {
+	if err == nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with email %s already exist", payload.Email))
 	}
 
