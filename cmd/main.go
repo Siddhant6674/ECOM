@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/Siddhant6674/ECOM/cmd/api"
@@ -11,7 +12,6 @@ import (
 )
 
 func main() {
-
 	db, err := db.NewMySQLStorage(mysql.Config{
 		User:   config.Envs.DBUser,
 		Passwd: config.Envs.DBPassward,
@@ -25,10 +25,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	initStorage(db)
-
-	server := api.NewAPIserver(":8080", db)
+	server := api.NewAPIserver(fmt.Sprintf("%s:%s", config.Envs.PublicHost, config.Envs.Port), db)
 	if err := server.Run(); err != nil {
 		log.Fatal(err)
 	}
